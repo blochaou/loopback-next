@@ -7,6 +7,8 @@ import {Context, Binding, BindingScope, Constructor} from '@loopback/context';
 import {Server} from './server';
 import {Component, mountComponent} from './component';
 import {CoreBindings} from './keys';
+import {resolve} from 'path';
+import {Booter, BootOptions} from '@loopback/boot';
 
 /**
  * Application is the container for various types of artifacts, such as
@@ -61,9 +63,47 @@ export class Application extends Context {
    */
   controller(controllerCtor: ControllerClass, name?: string): Binding {
     name = name || controllerCtor.name;
-    return this.bind(`controllers.${name}`)
+    return this.bind(`${CoreBindings.CONTROLLERS}.${name}`)
       .toClass(controllerCtor)
-      .tag('controller');
+      .tag(CoreBindings.CONTROLLERS_TAG);
+  }
+
+  /**
+   * Register a booter class / array of classes with this application.
+   *
+   * @param cls {Function | Function[]} The booter class (constructor function).
+   * @param {string=} name Optional booter name, defaults to the class name.
+   * Ignored is cls is an Array and the name defaults to the class name.
+   * @return {Binding | Binding[]} The newly created binding(s), you can use the
+   * reference to further modify the binding, e.g. lock the value to prevent
+   * further modifications.
+   *
+   * ```ts
+   * class MyBooter implements Booter {}
+   * app.booter(MyBooter);
+   * ```
+   */
+  async booter(cls: Constructor<Booter>, name?: string): Promise<Binding>;
+  async booter(cls: Constructor<Booter>[]): Promise<Binding[]>;
+  async booter(
+    cls: Constructor<Booter> | Constructor<Booter>[],
+    name?: string,
+    // tslint:disable-next-line:no-any
+  ): Promise<any> {
+    const bootstrapper = await this.get(CoreBindings.BOOTCOMPONENT);
+    return bootstrapper.booter(cls, name);
+  }
+
+  /**
+   * Function is responsible for calling all registered Booter classes that
+   * are bound to the Application instance. Each phase of an instance must
+   * complete before the next phase is started.
+   * @param {BootOptions} bootOptions Options for boot. Bound for Booters to
+   * receive via Dependency Injection.
+   */
+  async boot(bootOptions: BootOptions) {
+    const bootstrapper = await this.get(CoreBindings.BOOTCOMPONENT);
+    return await bootstrapper.boot(bootOptions);
   }
 
   /**

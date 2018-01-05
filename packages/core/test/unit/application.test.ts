@@ -4,8 +4,9 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {expect} from '@loopback/testlab';
-import {Application, Server, Component} from '../../index';
-import {Context, Constructor} from '@loopback/context';
+import {Application, Server, Component, CoreBindings} from '../../index';
+import {Context, Constructor, Binding, BindingScope} from '@loopback/context';
+import {Booter, BootOptions} from '@loopback/boot';
 
 describe('Application', () => {
   describe('controller binding', () => {
@@ -26,6 +27,46 @@ describe('Application', () => {
       expect(Array.from(binding.tags)).to.containEql('controller');
       expect(binding.key).to.equal('controllers.my-controller');
       expect(findKeysByTag(app, 'controller')).to.containEql(binding.key);
+    });
+
+    function givenApp() {
+      app = new Application();
+    }
+  });
+
+  describe('booter binding', () => {
+    let app: Application;
+    const bootOptions: BootOptions = {projectRoot: __dirname};
+
+    beforeEach(givenApp);
+
+    it('throws an error if .boot() is called without a BootStrapper bound', async () => {
+      await expect(app.boot(bootOptions)).to.be.rejectedWith(
+        `The key ${CoreBindings.BOOTCOMPONENT} was not bound to any value.`,
+      );
+    });
+
+    it('throws an error if .booter() is called without a BootStrapper bound', async () => {
+      await expect(app.booter(TestBooter)).to.be.rejectedWith(
+        `The key ${CoreBindings.BOOTCOMPONENT} was not bound to any value.`,
+      );
+    });
+
+    it('calls .boot() if a BootComponent is bound', async () => {
+      app.component(FakeBootComponent, 'BootComponent');
+      await app.boot(bootOptions);
+      const bootComponent = await app.get(CoreBindings.BOOTCOMPONENT);
+      expect(bootComponent.bootCalled).to.be.True();
+    });
+
+    it('calls .booter(cls) if a BootComponent is bound', async () => {
+      app.component(FakeBootComponent, 'BootComponent');
+      const binding = await app.booter(TestBooter);
+      const bootComponent = await app.get(CoreBindings.BOOTCOMPONENT);
+
+      expect(Array.from(binding.tags)).to.containEql('booter');
+      expect(binding.key).to.equal('booters.TestBooter');
+      expect(findKeysByTag(bootComponent, 'booter')).to.containEql(binding.key);
     });
 
     function givenApp() {
@@ -134,6 +175,25 @@ class FakeComponent implements Component {
   }
 }
 
+class FakeBootComponent extends Context implements Component {
+  bootCalled = false;
+
+  constructor() {
+    super();
+  }
+
+  async boot(options: BootOptions) {
+    this.bootCalled = true;
+  }
+
+  booter(cls: Constructor<Booter>): Binding {
+    return this.bind(`booters.${cls.name}`)
+      .toClass(cls)
+      .inScope(BindingScope.SINGLETON)
+      .tag('booter');
+  }
+}
+
 class FakeServer extends Context implements Server {
   running: boolean = false;
   constructor() {
@@ -145,5 +205,36 @@ class FakeServer extends Context implements Server {
 
   async stop(): Promise<void> {
     this.running = false;
+  }
+}
+
+class TestBooter implements Booter {
+  configRun = false;
+  discoverRun = false;
+  bootRun = false;
+
+  async configure() {
+    this.configRun = true;
+  }
+
+  async discover() {
+    this.discoverRun = true;
+  }
+
+  async load() {
+    this.bootRun = true;
+  }
+}
+
+class TestBooter2 implements Booter {
+  configRun = false;
+  randomRun = false;
+
+  async configure() {
+    this.configRun = true;
+  }
+
+  async random() {
+    this.randomRun = true;
   }
 }

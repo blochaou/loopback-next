@@ -23,6 +23,13 @@ export namespace CoreBindings {
    */
   export const SERVERS = 'servers';
 
+  // Binding Constant prefixes / tags
+  export const CONTROLLERS = 'controllers';
+  export const CONTROLLERS_TAG = 'controller';
+
+  // Key for Binding the BootStrapper Class
+  export const BOOTCOMPONENT = 'components.BootComponent';
+
   // controller
   /**
    * Binding key for the controller class resolved in the current request
