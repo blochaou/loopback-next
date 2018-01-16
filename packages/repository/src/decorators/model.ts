@@ -14,6 +14,7 @@ import {
   ModelDefinitionSyntax,
   PropertyDefinition,
 } from '../model';
+import {defineSchemaMetadata, modelToJsonDef} from './build-schema';
 
 export const MODEL_KEY = 'loopback:model';
 export const MODEL_PROPERTIES_KEY = 'loopback:model-properties';
@@ -63,6 +64,11 @@ export function model(definition?: Partial<ModelDefinitionSyntax>) {
     }
 
     target.definition = modelDef;
+
+    // modelToJsonDef sets and retrieves the metadata from a dedicated key and
+    // converts it to usable JSON Schema Definition
+    const jsonDef = modelToJsonDef(target);
+    defineSchemaMetadata(jsonDef, target);
   };
 }
 

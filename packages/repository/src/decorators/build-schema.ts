@@ -3,13 +3,13 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {
-  ModelMetadataHelper,
-  PropertyDefinition,
-  ModelDefinition,
-} from '@loopback/repository';
 import {includes} from 'lodash';
 import {Definition} from 'typescript-json-schema';
+import {MetadataInspector} from '@loopback/context';
+import {ModelMetadataHelper} from './metadata';
+import {ModelDefinition, PropertyDefinition} from '../model';
+
+export const JSON_SCHEMA_KEY = 'loopback:json-schema';
 
 /**
  * Type definition for JSON Schema
@@ -68,4 +68,8 @@ export function toJsonProperty(propMeta: PropertyDefinition): JsonDefinition {
     prop.$ref = `#definitions/${ctor.name}`;
   }
   return prop;
+}
+
+export function defineSchemaMetadata(json: JsonDefinition, target: Function) {
+  MetadataInspector.defineMetadata(JSON_SCHEMA_KEY, json, target);
 }

@@ -4,6 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 export * from './common-types';
+export * from './decorators/build-schema';
 export * from './decorators/model';
 export * from './decorators/repository';
 export * from './decorators/relation';

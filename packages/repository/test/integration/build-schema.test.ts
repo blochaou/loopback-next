@@ -9,8 +9,9 @@ import {
   ModelMetadataHelper,
   ModelDefinition,
   PropertyMap,
-} from '@loopback/repository';
-import {modelToJsonDef, toJsonProperty} from '../../src/build-schema';
+  modelToJsonDef,
+  toJsonProperty,
+} from '../..';
 import {expect} from '@loopback/testlab';
 
 describe('build-schema', () => {
@@ -152,13 +153,11 @@ describe('build-schema', () => {
     });
 
     it('errors out when "@property.array" is not used on an array', () => {
-      @model()
-      class BadArray {
-        @property() badArr: string[];
-      }
-
       expect(() => {
-        modelToJsonDef(BadArray);
+        @model()
+        class BadArray {
+          @property() badArr: string[];
+        }
       }).to.throw(/type is defined as an array/);
     });
 
