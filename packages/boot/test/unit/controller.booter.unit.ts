@@ -7,8 +7,6 @@ import {expect} from '@loopback/testlab';
 import {Application, CoreBindings, BootOptions} from '@loopback/core';
 import {ControllerBooter, ControllerDefaults} from '../../index';
 import {resolve, relative} from 'path';
-// @ts-ignore
-import {getCompilationTarget} from '@loopback/build/bin/utils';
 
 describe('controller booter unit tests', () => {
   let app: Application;
@@ -387,12 +385,6 @@ describe('controller booter unit tests', () => {
   }
 
   function getProjectRoot() {
-    let dist = 'dist';
-    if (getCompilationTarget() === 'es2015') dist = 'dist6';
-    projectRoot =
-      process.cwd().indexOf('packages') > -1
-        ? `${dist}/test/fixtures/booterApp`
-        : `packages/boot/${dist}/test/fixtures/booterApp`;
-    projectRoot = resolve(projectRoot);
+    projectRoot = resolve(__dirname, '../fixtures/booterApp');
   }
 });

@@ -8,8 +8,7 @@ import {ControllerBooterApp} from '../fixtures/booterApp/application';
 import {RestServer} from '@loopback/rest';
 import {BootOptions} from '@loopback/core';
 import {ControllerBooter, BootComponent} from '../../index';
-// @ts-ignore
-import {getCompilationTarget} from '@loopback/build/bin/utils';
+import {resolve} from 'path';
 
 describe('controller booter acceptance tests', () => {
   let app: ControllerBooterApp;
@@ -38,12 +37,7 @@ describe('controller booter acceptance tests', () => {
   });
 
   function getProjectRoot() {
-    let dist = 'dist';
-    if (getCompilationTarget() === 'es2015') dist = 'dist6';
-    projectRoot =
-      process.cwd().indexOf('packages') > -1
-        ? `${dist}/test/fixtures/booterApp`
-        : `packages/boot/${dist}/test/fixtures/booterApp`;
+    projectRoot = resolve(__dirname, '../fixtures/booterApp');
   }
 
   function getBootConfig() {

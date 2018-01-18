@@ -13,8 +13,6 @@ import {
   BootComponent,
 } from '../../index';
 import {resolve} from 'path';
-// @ts-ignore
-import {getCompilationTarget} from '@loopback/build/bin/utils';
 
 describe('controller booter intengration tests', () => {
   let app: ControllerBooterApp;
@@ -78,12 +76,7 @@ describe('controller booter intengration tests', () => {
   }
 
   function getProjectRoot() {
-    let dist = 'dist';
-    if (getCompilationTarget() === 'es2015') dist = 'dist6';
-    projectRoot =
-      process.cwd().indexOf('packages') > -1
-        ? `${dist}/test/fixtures/booterApp`
-        : `packages/boot/${dist}/test/fixtures/booterApp`;
+    projectRoot = resolve(__dirname, '../fixtures/booterApp');
   }
 
   function getBootOptions() {
