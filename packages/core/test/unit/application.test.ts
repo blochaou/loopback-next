@@ -220,31 +220,8 @@ class FakeServer extends Context implements Server {
 
 class TestBooter implements Booter {
   configRun = false;
-  discoverRun = false;
-  bootRun = false;
 
   async configure() {
     this.configRun = true;
-  }
-
-  async discover() {
-    this.discoverRun = true;
-  }
-
-  async load() {
-    this.bootRun = true;
-  }
-}
-
-class TestBooter2 implements Booter {
-  configRun = false;
-  randomRun = false;
-
-  async configure() {
-    this.configRun = true;
-  }
-
-  async random() {
-    this.randomRun = true;
   }
 }
