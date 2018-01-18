@@ -7,7 +7,10 @@ import {CoreBindings, Application, Booter, BootOptions} from '@loopback/core';
 import {inject} from '@loopback/context';
 import {BootBindings} from '../keys';
 import {relative} from 'path';
-import * as glob from 'glob';
+import * as util from 'util';
+
+const promisify = util.promisify || require('util.promisify/implementation');
+const glob = promisify(require('glob'));
 
 /**
  * ControllerBooter is a class that implements the Booter inferface. The purpose
@@ -65,7 +68,7 @@ export class ControllerBooter implements Booter {
     pattern += this.options.nested ? '**/*' : '*';
     pattern += `@(${this.extensions.join('|')})`;
 
-    this.discovered = glob.sync(pattern, {root: this.projectRoot});
+    this.discovered = await glob(pattern, {root: this.projectRoot});
   }
 
   /**

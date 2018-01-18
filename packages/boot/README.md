@@ -26,7 +26,8 @@ $ npm i @loopback/boot
 ```ts
 import {Application} from '@loopback/core';
 import {ControllerBooter, BootComponent} from '@loopback/boot';
-const app = new Application({components:[BootComponent]});
+const app = new Application();
+app.component(BootComponent);
 await app.booter(ControllerBooter); // register booter
 await app.boot({
   projectRoot: __dirname,
@@ -61,7 +62,8 @@ Available Options on the `controllers` object are as follows:
 #### Examples
 **Via BootOptions**
 ```ts
-new Application({components: [BootComponent]});
+const app = new Application();
+app.component(BootComponent);
 app.boot({
   boot: {
     projectRoot: '',
