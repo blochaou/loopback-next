@@ -6,7 +6,8 @@
 import {Client, createClientForHandler} from '@loopback/testlab';
 import {ControllerBooterApp} from '../fixtures/booterApp/application';
 import {RestServer} from '@loopback/rest';
-import {ControllerBooter, BootOptions} from '../../index';
+import {BootOptions} from '@loopback/core';
+import {ControllerBooter, BootComponent} from '../../index';
 // @ts-ignore
 import {getCompilationTarget} from '@loopback/build/bin/utils';
 
@@ -22,7 +23,7 @@ describe('controller booter acceptance tests', () => {
   afterEach(stopApp);
 
   it('binds controllers using ControllerDefaults and REST endpoints work', async () => {
-    app.booter(ControllerBooter);
+    await app.booter(ControllerBooter);
     await app.boot(bootConfig);
     await app.start();
 
@@ -52,7 +53,7 @@ describe('controller booter acceptance tests', () => {
   }
 
   function getApp() {
-    app = new ControllerBooterApp();
+    app = new ControllerBooterApp({components: [BootComponent]});
   }
 
   async function stopApp() {

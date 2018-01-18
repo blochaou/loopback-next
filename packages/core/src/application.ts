@@ -8,7 +8,7 @@ import {Server} from './server';
 import {Component, mountComponent} from './component';
 import {CoreBindings} from './keys';
 import {resolve} from 'path';
-import {Booter, BootOptions} from '@loopback/boot';
+import {Booter, BootOptions} from './booter';
 
 /**
  * Application is the container for various types of artifacts, such as
@@ -90,7 +90,18 @@ export class Application extends Context {
     name?: string,
     // tslint:disable-next-line:no-any
   ): Promise<any> {
-    const bootstrapper = await this.get(CoreBindings.BOOTCOMPONENT);
+    let bootstrapper;
+
+    try {
+      bootstrapper = await this.get(CoreBindings.BOOTCOMPONENT);
+    } catch (err) {
+      throw new Error(
+        `BootComponent needs to be bound to ${
+          CoreBindings.BOOTCOMPONENT
+        } to use app.booter()`,
+      );
+    }
+
     return bootstrapper.booter(cls, name);
   }
 
@@ -102,7 +113,16 @@ export class Application extends Context {
    * receive via Dependency Injection.
    */
   async boot(bootOptions: BootOptions) {
-    const bootstrapper = await this.get(CoreBindings.BOOTCOMPONENT);
+    let bootstrapper;
+    try {
+      bootstrapper = await this.get(CoreBindings.BOOTCOMPONENT);
+    } catch (err) {
+      throw new Error(
+        `BootComponent needs to be bound to ${
+          CoreBindings.BOOTCOMPONENT
+        } to use app.boot()`,
+      );
+    }
     return await bootstrapper.boot(bootOptions);
   }
 

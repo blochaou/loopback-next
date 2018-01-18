@@ -1,12 +1,12 @@
-// Copyright IBM Corp. 2013,2018. All Rights Reserved.
+// Copyright IBM Corp. 2018. All Rights Reserved.
 // Node module: @loopback/boot
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {CoreBindings, Application} from '@loopback/core';
+import {CoreBindings, Application, Booter, BootOptions} from '@loopback/core';
 import {inject} from '@loopback/context';
-import {Booter, BootOptions} from '../types';
 import {BootBindings} from '../keys';
+import {relative} from 'path';
 import * as glob from 'glob';
 
 /**
@@ -86,7 +86,7 @@ export class ControllerBooter implements Booter {
           this.app.controller(ctrl[cls]);
         });
       } catch (err) {
-        errFiles.push(file.substring(this.projectRoot.length));
+        errFiles.push(relative(this.projectRoot, file));
       }
     });
 

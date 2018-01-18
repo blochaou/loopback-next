@@ -4,9 +4,15 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {expect} from '@loopback/testlab';
-import {Application, Server, Component, CoreBindings} from '../../index';
+import {
+  Application,
+  Server,
+  Component,
+  CoreBindings,
+  Booter,
+  BootOptions,
+} from '../../index';
 import {Context, Constructor, Binding, BindingScope} from '@loopback/context';
-import {Booter, BootOptions} from '@loopback/boot';
 
 describe('Application', () => {
   describe('controller binding', () => {
@@ -42,13 +48,17 @@ describe('Application', () => {
 
     it('throws an error if .boot() is called without a BootStrapper bound', async () => {
       await expect(app.boot(bootOptions)).to.be.rejectedWith(
-        `The key ${CoreBindings.BOOTCOMPONENT} was not bound to any value.`,
+        `BootComponent needs to be bound to ${
+          CoreBindings.BOOTCOMPONENT
+        } to use app.boot()`,
       );
     });
 
     it('throws an error if .booter() is called without a BootStrapper bound', async () => {
       await expect(app.booter(TestBooter)).to.be.rejectedWith(
-        `The key ${CoreBindings.BOOTCOMPONENT} was not bound to any value.`,
+        `BootComponent needs to be bound to ${
+          CoreBindings.BOOTCOMPONENT
+        } to use app.booter()`,
       );
     });
 

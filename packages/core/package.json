@@ -24,7 +24,6 @@
   "license": "MIT",
   "dependencies": {
     "@loopback/context": "^4.0.0-alpha.25",
-    "@loopback/boot": "^4.0.0-alpha.1",
     "lodash": "^4.17.4",
     "topo": "^3.0.0",
     "util.promisify": "^1.0.0"

@@ -3,8 +3,6 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {BOOTER_PHASES} from './types';
-
 /**
  * Namespace for core binding keys
  */
@@ -16,6 +14,4 @@ export namespace BootBindings {
 
   export const BOOTER_TAG = 'booter';
   export const BOOTER_PREFIX = 'booters';
-
-  export const PHASES = BOOTER_PHASES;
 }

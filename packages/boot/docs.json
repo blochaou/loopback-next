@@ -1,5 +1,12 @@
 {
-  "content": ["index.ts", "src/index.ts", "src/controller.booter.ts"],
+  "content": [
+    "index.ts",
+    "src/booters/controller.booter.ts",
+    "src/booters/index.ts",
+    "src/boot.component.ts",
+    "src/index.ts",
+    "src/keys.ts"
+  ],
   "codeSectionDepth": 4,
   "assets": {
     "/": "/docs",

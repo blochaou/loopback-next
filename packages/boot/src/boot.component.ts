@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2018. All Rights Reserved.
+// Node module: @loopback/boot
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 import {
   Context,
   inject,
@@ -5,10 +10,16 @@ import {
   Binding,
   BindingScope,
 } from '@loopback/context';
-import {Component} from '@loopback/core';
+import {
+  Component,
+  Booter,
+  BootOptions,
+  BOOTER_PHASES,
+  CoreBindings,
+  Application,
+} from '@loopback/core';
 import {resolve} from 'path';
 import {BootBindings} from './keys';
-import {Booter, BootOptions} from './types';
 
 import * as debugModule from 'debug';
 const debug = debugModule('loopback:boot:bootstrapper');
@@ -16,8 +27,8 @@ const debug = debugModule('loopback:boot:bootstrapper');
 export class BootComponent extends Context implements Component {
   bootOptions: BootOptions;
 
-  constructor() {
-    super();
+  constructor(@inject(CoreBindings.APPLICATION_INSTANCE) app: Application) {
+    super(app);
   }
 
   /**
@@ -43,14 +54,12 @@ export class BootComponent extends Context implements Component {
     this.bind(BootBindings.BOOT_CONFIG).to(this.bootOptions);
 
     // Find Bindings and get instance
-    const bindings = this.findByTag(BootBindings.BOOTER_PREFIX);
+    const bindings = this.findByTag(BootBindings.BOOTER_TAG);
     // tslint:disable-next-line:no-any
-    let booterInsts: any[] = await bindings.map(binding =>
-      this.get(binding.key),
-    );
+    let booterInsts: any[] = bindings.map(binding => this.getSync(binding.key));
 
     // Run phases of booters
-    for (const phase of BootBindings.PHASES) {
+    for (const phase of BOOTER_PHASES) {
       for (const inst of booterInsts) {
         if (inst[phase]) {
           await inst[phase]();
@@ -73,11 +82,11 @@ export class BootComponent extends Context implements Component {
       .inScope(BindingScope.SINGLETON);
   }
 
-  booter<T extends Booter>(booterCls: Constructor<T>, name?: string): Binding;
-  booter<T extends Booter>(booterCls: Constructor<T>[]): Binding[];
+  booter(booterCls: Constructor<Booter>, name?: string): Binding;
+  booter(booterCls: Constructor<Booter>[]): Binding[];
 
   // tslint:disable-next-line:no-any
-  booter<T extends Booter>(booterCls: any, name?: string): any {
+  booter(booterCls: any, name?: string): any {
     if (Array.isArray(booterCls)) {
       return booterCls.map(cls => this._bindBooter(cls));
     } else {

@@ -1,12 +1,12 @@
-// Copyright IBM Corp. 2013,2018. All Rights Reserved.
+// Copyright IBM Corp. 2018. All Rights Reserved.
 // Node module: @loopback/boot
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
 import {expect} from '@loopback/testlab';
-import {Application, CoreBindings} from '@loopback/core';
-import {ControllerBooter, ControllerDefaults, BootOptions} from '../../index';
-import {resolve} from 'path';
+import {Application, CoreBindings, BootOptions} from '@loopback/core';
+import {ControllerBooter, ControllerDefaults} from '../../index';
+import {resolve, relative} from 'path';
 // @ts-ignore
 import {getCompilationTarget} from '@loopback/build/bin/utils';
 
@@ -113,9 +113,7 @@ describe('controller booter unit tests', () => {
     it('discovers files without going into nested folders', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          nested: false,
-        }),
+        controllers: {nested: false},
       };
       const expected = [
         `${resolve(projectRoot, 'controllers/empty.controller.js')}`,
@@ -134,9 +132,7 @@ describe('controller booter unit tests', () => {
     it('discovers files of specified extensions', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          extensions: ['.ctrl.js'],
-        }),
+        controllers: ControllerDefaults,
       };
       const expected = [
         `${resolve(projectRoot, 'controllers/another.ext.ctrl.js')}`,
@@ -153,9 +149,7 @@ describe('controller booter unit tests', () => {
     it('discovers files in specified directory', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          dirs: ['ctrl'],
-        }),
+        controllers: ControllerDefaults,
       };
       const expected = [
         `${resolve(projectRoot, 'ctrl/multiple.folder.controller.js')}`,
@@ -172,9 +166,7 @@ describe('controller booter unit tests', () => {
     it('discovers files of multiple extensions', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          extensions: ['.ctrl.js', '.controller.js'],
-        }),
+        controllers: ControllerDefaults,
       };
       const expected = [
         `${resolve(projectRoot, 'controllers/empty.controller.js')}`,
@@ -195,9 +187,7 @@ describe('controller booter unit tests', () => {
     it('discovers files in multiple directories', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          dirs: ['ctrl', 'controllers'],
-        }),
+        controllers: ControllerDefaults,
       };
       const expected = [
         `${resolve(projectRoot, 'controllers/empty.controller.js')}`,
@@ -218,9 +208,7 @@ describe('controller booter unit tests', () => {
     it('discovers no files in an empty directory', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          dirs: ['empty'],
-        }),
+        controllers: ControllerDefaults,
       };
       const expected: string[] = [];
 
@@ -235,9 +223,7 @@ describe('controller booter unit tests', () => {
     it('discovers no files of an invalid extension', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          extensions: ['.fake'],
-        }),
+        controllers: ControllerDefaults,
       };
       const expected: string[] = [];
 
@@ -252,9 +238,7 @@ describe('controller booter unit tests', () => {
     it('discovers no files in a non-existent directory', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          dirs: ['fake'],
-        }),
+        controllers: ControllerDefaults,
       };
       const expected: string[] = [];
 
@@ -271,16 +255,13 @@ describe('controller booter unit tests', () => {
     it('binds a controller from discovered file', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          discovered: [
-            `${resolve(projectRoot, 'controllers/hello.controller.js')}`,
-          ],
-        }),
       };
       const expected = [`${CoreBindings.CONTROLLERS}.HelloController`];
 
       const booter = new ControllerBooter(app, bootOptions);
-      booter.discovered = bootOptions.controllers.discovered;
+      booter.discovered = [
+        `${resolve(projectRoot, 'controllers/hello.controller.js')}`,
+      ];
 
       await booter.load();
       const boundControllers = app
@@ -292,16 +273,6 @@ describe('controller booter unit tests', () => {
     it('binds controllers from multiple files', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          discovered: [
-            `${resolve(projectRoot, 'controllers/hello.controller.js')}`,
-            `${resolve(projectRoot, 'controllers/another.ext.ctrl.js')}`,
-            `${resolve(
-              projectRoot,
-              'controllers/nested/nested.controller.js',
-            )}`,
-          ],
-        }),
       };
       const expected = [
         `${CoreBindings.CONTROLLERS}.HelloController`,
@@ -310,7 +281,11 @@ describe('controller booter unit tests', () => {
       ];
 
       const booter = new ControllerBooter(app, bootOptions);
-      booter.discovered = bootOptions.controllers.discovered;
+      booter.discovered = [
+        `${resolve(projectRoot, 'controllers/hello.controller.js')}`,
+        `${resolve(projectRoot, 'controllers/another.ext.ctrl.js')}`,
+        `${resolve(projectRoot, 'controllers/nested/nested.controller.js')}`,
+      ];
 
       await booter.load();
       const boundControllers = app
@@ -322,11 +297,6 @@ describe('controller booter unit tests', () => {
     it('binds multiple controllers from a file', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          discovered: [
-            `${resolve(projectRoot, 'controllers/two.controller.js')}`,
-          ],
-        }),
       };
       const expected = [
         `${CoreBindings.CONTROLLERS}.ControllerOne`,
@@ -334,7 +304,9 @@ describe('controller booter unit tests', () => {
       ];
 
       const booter = new ControllerBooter(app, bootOptions);
-      booter.discovered = bootOptions.controllers.discovered;
+      booter.discovered = [
+        `${resolve(projectRoot, 'controllers/two.controller.js')}`,
+      ];
 
       await booter.load();
       const boundControllers = app
@@ -346,16 +318,13 @@ describe('controller booter unit tests', () => {
     it('does not throw on an empty file', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          discovered: [
-            `${resolve(projectRoot, 'controllers/empty.controller.js')}`,
-          ],
-        }),
       };
       const expected: string[] = [];
 
       const booter = new ControllerBooter(app, bootOptions);
-      booter.discovered = bootOptions.controllers.discovered;
+      booter.discovered = [
+        `${resolve(projectRoot, 'controllers/empty.controller.js')}`,
+      ];
 
       await booter.load();
       const boundControllers = app
@@ -367,18 +336,18 @@ describe('controller booter unit tests', () => {
     it('throws an error on a non-existent file', async () => {
       const bootOptions: BootOptions = {
         projectRoot: projectRoot,
-        controllers: Object.assign({}, ControllerDefaults, {
-          discovered: [
-            `${resolve(projectRoot, 'controllers/fake.controller.js')}`,
-          ],
-        }),
       };
 
       const booter = new ControllerBooter(app, bootOptions);
-      booter.discovered = bootOptions.controllers.discovered;
+      booter.discovered = [
+        `${resolve(projectRoot, 'controllers/fake.controller.js')}`,
+      ];
 
       await expect(booter.load()).to.be.rejectedWith(
-        'ControllerBooter failed to load the following files: ["/controllers/fake.controller.js"]',
+        `ControllerBooter failed to load the following files: ["${relative(
+          projectRoot,
+          booter.discovered[0],
+        )}"]`,
       );
     });
   });
@@ -386,13 +355,6 @@ describe('controller booter unit tests', () => {
   it('mounts other files even if one is non-existent', async () => {
     const bootOptions: BootOptions = {
       projectRoot: projectRoot,
-      controllers: Object.assign({}, ControllerDefaults, {
-        discovered: [
-          `${resolve(projectRoot, 'controllers/hello.controller.js')}`,
-          `${resolve(projectRoot, 'controllers/fake.controller.js')}`,
-          `${resolve(projectRoot, 'controllers/two.controller.js')}`,
-        ],
-      }),
     };
     const expected = [
       `${CoreBindings.CONTROLLERS}.ControllerOne`,
@@ -401,10 +363,17 @@ describe('controller booter unit tests', () => {
     ];
 
     const booter = new ControllerBooter(app, bootOptions);
-    booter.discovered = bootOptions.controllers.discovered;
+    booter.discovered = [
+      `${resolve(projectRoot, 'controllers/hello.controller.js')}`,
+      `${resolve(projectRoot, 'controllers/fake.controller.js')}`,
+      `${resolve(projectRoot, 'controllers/two.controller.js')}`,
+    ];
 
     await expect(booter.load()).to.be.rejectedWith(
-      'ControllerBooter failed to load the following files: ["/controllers/fake.controller.js"]',
+      `ControllerBooter failed to load the following files: ["${relative(
+        projectRoot,
+        booter.discovered[1],
+      )}"]`,
     );
 
     const boundControllers = app

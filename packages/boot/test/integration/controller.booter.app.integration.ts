@@ -1,15 +1,14 @@
-// Copyright IBM Corp. 2013,2018. All Rights Reserved.
+// Copyright IBM Corp. 2018. All Rights Reserved.
 // Node module: @loopback/boot
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
 import {expect} from '@loopback/testlab';
-import {CoreBindings} from '@loopback/core';
+import {CoreBindings, BootOptions} from '@loopback/core';
 import {ControllerBooterApp} from '../fixtures/booterApp/application';
 import {
   ControllerBooter,
   ControllerDefaults,
-  BootOptions,
   BootBindings,
   BootComponent,
 } from '../../index';
@@ -48,17 +47,19 @@ describe('controller booter intengration tests', () => {
       `${CoreBindings.CONTROLLERS}.MultipleFolderController`,
     ];
 
-    app.booter(ControllerBooter);
+    await app.booter(ControllerBooter);
     await app.boot(bootOptions);
-    const bootComponent = await app.get(CoreBindings.BOOTCOMPONENT);
-    const booter = await bootComponent.get(
+    const bootComponent: BootComponent = await app.get(
+      CoreBindings.BOOTCOMPONENT,
+    );
+    const booter: ControllerBooter = await bootComponent.get(
       `${BootBindings.BOOTER_PREFIX}.ControllerBooter`,
     );
 
     // Check Config Phase Ran as expected
-    expect(booter.dirs.sort()).to.eql(bootOptions.boot.controllers.dirs.sort());
+    expect(booter.dirs.sort()).to.eql(bootOptions.controllers.dirs.sort());
     expect(booter.extensions.sort()).to.eql(
-      bootOptions.boot.controllers.extensions.sort(),
+      bootOptions.controllers.extensions.sort(),
     );
     expect(booter.options.nested).to.equal(ControllerDefaults.nested);
 
