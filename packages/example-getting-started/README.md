@@ -9,15 +9,12 @@ removed when it is ready for use!
 
 Before we can begin, you'll need to make sure you have some things installed:
 - [Node.js](https://nodejs.org/en/) at v6.x or greater
-- [TypeScript](http://www.typescriptlang.org/)
-- [Git](https://git-scm.com/)
 
 Additionally, this tutorial assumes that you are comfortable with
 certain technologies, languages and concepts.
 - JavaScript (ES6)
 - [npm](https://www.npmjs.com/)
 - [REST](https://en.wikipedia.org/wiki/Representational_state_transfer)
-- [Using Git](https://githowto.com/)
 
 ## Setup
 1. Install loopback-client
