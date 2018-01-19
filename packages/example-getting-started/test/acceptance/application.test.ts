@@ -1,8 +1,3 @@
-// Copyright IBM Corp. 2017,2018. All Rights Reserved.
-// Node module: @loopback/example-getting-started
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
 import {createClientForHandler, expect, supertest} from '@loopback/testlab';
 import {RestServer} from '@loopback/rest';
 import {TodoApplication} from '../../src/application';
@@ -46,6 +41,21 @@ describe('Application', () => {
       .get(`/todo/${todo.id}`)
       .send()
       .expect(200, todo);
+  });
+
+  it('replaces the todo by ID', async () => {
+    const todo = await givenTodoInstance();
+    const updatedTodo = givenTodo({
+      title: 'DO SOMETHING AWESOME',
+      desc: 'It has to be something ridiculous',
+      isComplete: true,
+    });
+    await client
+      .put(`/todo/${todo.id}`)
+      .send(updatedTodo)
+      .expect(200);
+    const result = await todoRepo.findById(todo.id);
+    expect(result).to.containEql(updatedTodo);
   });
 
   it('updates the todo by ID ', async () => {

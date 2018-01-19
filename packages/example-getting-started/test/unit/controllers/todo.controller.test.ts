@@ -1,8 +1,3 @@
-// Copyright IBM Corp. 2017,2018. All Rights Reserved.
-// Node module: @loopback/example-getting-started
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
 import {expect} from '@loopback/testlab';
 import {TodoController} from '../../../src/controllers';
 import {TodoRepository} from '../../../src/repositories';
@@ -45,20 +40,36 @@ describe('TodoController', () => {
   let aChangedTodo: Todo;
   let aTodoList: Todo[];
 
+  const noError = 'No error was thrown!';
+
   beforeEach(resetRepositories);
   describe('createTodo', () => {
     it('creates a Todo', async () => {
       create.resolves(aTodoWithId);
-      const result = await controller.create(aTodo);
+      const result = await controller.createTodo(aTodo);
       expect(result).to.eql(aTodoWithId);
       sinon.assert.calledWith(create, aTodo);
+    });
+
+    it('throws if the payload is missing a title', async () => {
+      const todo = givenTodo();
+      delete todo.title;
+      try {
+        await controller.createTodo(todo);
+      } catch (err) {
+        expect(err).to.match(/title is required/);
+        sinon.assert.notCalled(create);
+        return;
+      }
+      // Repository stub should not have been called!
+      throw new Error(noError);
     });
   });
 
   describe('findTodoById', () => {
     it('returns a todo if it exists', async () => {
       findById.resolves(aTodoWithId);
-      expect(await controller.findById(aTodoWithId.id as number)).to.eql(
+      expect(await controller.findTodoById(aTodoWithId.id as number)).to.eql(
         aTodoWithId,
       );
       sinon.assert.calledWith(findById, aTodoWithId.id);
@@ -68,15 +79,25 @@ describe('TodoController', () => {
   describe('findTodos', () => {
     it('returns multiple todos if they exist', async () => {
       find.resolves(aTodoList);
-      expect(await controller.find({})).to.eql(aTodoList);
+      expect(await controller.findTodos()).to.eql(aTodoList);
       sinon.assert.called(find);
     });
 
     it('returns empty list if no todos exist', async () => {
       const expected: Todo[] = [];
       find.resolves(expected);
-      expect(await controller.find({})).to.eql(expected);
+      expect(await controller.findTodos()).to.eql(expected);
       sinon.assert.called(find);
+    });
+  });
+
+  describe('replaceTodo', () => {
+    it('successfully replaces existing items', async () => {
+      replaceById.resolves(true);
+      expect(
+        await controller.replaceTodo(aTodoWithId.id as number, aChangedTodo),
+      ).to.eql(true);
+      sinon.assert.calledWith(replaceById, aTodoWithId.id, aChangedTodo);
     });
   });
 
@@ -84,7 +105,7 @@ describe('TodoController', () => {
     it('successfully updates existing items', async () => {
       updateById.resolves(true);
       expect(
-        await controller.updateById(aTodoWithId.id as number, aChangedTodo),
+        await controller.updateTodo(aTodoWithId.id as number, aChangedTodo),
       ).to.eql(true);
       sinon.assert.calledWith(updateById, aTodoWithId.id, aChangedTodo);
     });
@@ -93,7 +114,7 @@ describe('TodoController', () => {
   describe('deleteTodo', () => {
     it('successfully deletes existing items', async () => {
       deleteById.resolves(true);
-      expect(await controller.deleteById(aTodoWithId.id as number)).to.eql(
+      expect(await controller.deleteTodo(aTodoWithId.id as number)).to.eql(
         true,
       );
       sinon.assert.calledWith(deleteById, aTodoWithId.id);

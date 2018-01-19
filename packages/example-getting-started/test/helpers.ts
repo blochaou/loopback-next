@@ -1,8 +1,3 @@
-// Copyright IBM Corp. 2017,2018. All Rights Reserved.
-// Node module: @loopback/example-getting-started
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
 import {Todo} from '../src/models/index';
 
 /*
@@ -13,7 +8,7 @@ import {Todo} from '../src/models/index';
  way to reduce duplication.
 
  Other tips:
-
+ 
  - Using the super awesome Partial<T> type in conjunction with Object.assign
    means you can:
    * customize the object you get back based only on what's important
