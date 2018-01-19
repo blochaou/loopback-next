@@ -2,6 +2,7 @@
   "name": "@loopback/example-getting-started",
   "version": "1.0.0",
   "description": "An application and tutorial on how to build with LoopBack 4.",
+  "private": true,
   "main": "index.js",
   "engines": {
     "node": ">=8"
@@ -48,6 +49,5 @@
     "LoopBack",
     "example",
     "tutorial"
-  ],
-  "private": true
+  ]
 }
